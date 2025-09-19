@@ -4,3 +4,27 @@
     name: gantsign.visual-studio-code
     apply:
       become: true
+
+- name: Remove legacy repo
+  become: true  
+  ansible.builtin.apt_repository:
+    repo: 'deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main'
+    state: absent
+    filename: 'vscode-legacy'
+    update_cache: yes
+
+- name: Set up additional VSCode settings
+  ansible.builtin.copy:
+    dest: "{{ lookup('env','HOME') }}/.config/Code/User/settings.json"
+    content: |
+      // ANSIBLE MANAGED BLOCK: vscode ensure final newline
+      {
+        "redhat.telemetry.enabled": true,
+        "editor.fontSize": 9,
+        "editor.formatOnSave": true,
+        "files.insertFinalNewline": true,
+        "[terraform]": {
+          "editor.defaultFormatter": "hashicorp.terraform"
+        }
+      }
+    mode: '0644'

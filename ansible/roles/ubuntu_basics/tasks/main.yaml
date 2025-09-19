@@ -7,9 +7,19 @@
      regexp: "^{{ ansible_user_id }}"
      line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
 
-# - name: Install htop
-#   apt:
-#     name: htop
-#     state: present
-#     update_cache: yes
+- name: Ensure useful shell aliases are present
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env','HOME') }}/.bash_aliases"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: ubuntu_basics aliases"
+    create: yes
+    block: |
+      alias ll='ls -alF'
+      alias la='ls -A'
+      alias l='ls -CF'
+      alias g='git'
+      alias k='kubectl'
+      alias d='docker'
+      alias gs='git status'
+      alias gd='git diff'
+      alias glog='git log --oneline --graph --decorate --all'
 
