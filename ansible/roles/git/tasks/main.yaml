@@ -1,0 +1,85 @@
+---
+- name: Install Git
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    state: present
+    pkg:
+    - git
+    - git-extras
+  retries: 3
+  delay: 10
+
+- name: Configure Git user
+  community.general.git_config:
+    scope: global
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+  - { name: user.name, value: "{{ git_user_name }}" }
+  - { name: user.email, value: "{{ git_user_email }}" }
+
+- name: Set Git default editor
+  community.general.git_config:
+    scope: global
+    name: core.editor
+    value: "{{ git_default_editor }}"
+    state: present
+
+- name: Set additional Git configuration
+  community.general.git_config:
+    scope: global
+    state: present
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+  with_items:
+  - { name: init.defaultBranch, value: main }
+  - { name: pull.rebase, value: true }
+  - { name: credential.helper, value: cache --timeout=3600 }
+  - { name: alias.co, value: checkout }
+  - { name: alias.br, value: branch }
+  - { name: alias.ci, value: commit }
+  - { name: alias.st, value: status }
+  - { name: alias.rc, value: rebase --continue }
+  - { name: alias.glog, value: log --oneline --graph --decorate --all }
+  - { name: alias.pf, value: push --force-with-lease }
+  - { name: alias.last, value: log -1 HEAD }
+  - { name: alias.unstage, value: reset HEAD -- }
+  - { name: alias.visual, value: "!f() { code \"$@\"; }; f" }
+  - { name: alias.lg, value: log --graph --pretty=format:'%C(yellow)%h%Creset -%C(auto)%d%Creset %s %C(blue)%an%Creset %C(green)(%cr)%Creset' --abbrev-commit }
+      
+- name: Ensure Git credential cache is set
+  community.general.git_config:
+    scope: global
+    name: credential.helper
+    value: cache --timeout=3600
+    state: present
+
+- name: Add Github token support
+  community.general.git_config:
+    scope: global
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+  - { name: credential.https://github.com.username, value: "{{ git_user_email }}" }
+  - name: credential.https://github.com.helper
+    value: '!f() { test -n "$(keyring get github_token github.com/krzysiekpagacz)" && (test "$1" = get && echo "password=$(keyring get github_token github.com/krzysiekpagacz)"); }; f'
+
+- name: Ensure default projects directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ lookup('env','HOME') }}/projects"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user_id | default(lookup('env','USER')) }}"
+    group: "{{ ansible_user_gid | default(lookup('env','USER')) }}"
+
+- name: Clone gitignore repository
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest | default('~/projects/' + (item.repo | basename | regex_replace('\\.git$', '')) ) }}"
+    clone: yes
+    update: yes
+  with_items: "{{ git_repositories }}"

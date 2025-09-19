@@ -1,0 +1,6 @@
+---
+- name: Install VSCode
+  ansible.builtin.include_role:
+    name: gantsign.visual-studio-code
+    apply:
+      become: true
