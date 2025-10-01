@@ -1,0 +1,63 @@
+---
+- name: Create download directory
+  become: true
+  ansible.builtin.file:
+    state: directory
+    mode: "0755"
+    dest: "{{ install_helper_download_path }}"
+
+- name: Download from {{ install_helper_download_url }}
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ install_helper_download_url }}"
+    dest: "{{ install_helper_tmp_file }}"
+    checksum: "{{ install_helper_download_checksum | default(omit) }}"
+    force: false
+    validate_certs: true
+    timeout: "{{ install_helper_download_timeout_seconds }}"
+    mode: "0755"
+
+- name: Create unpack folder {{ install_helper_tmp_folder }}
+  become: true
+  ansible.builtin.file:
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    dest: "{{ install_helper_tmp_folder }}"
+  when: install_helper_filename is not defined
+
+- name: Unpack to {{ install_helper_tmp_folder }}
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ install_helper_tmp_file }}"
+    dest: "{{ install_helper_tmp_folder }}"
+    remote_src: true
+  when: install_helper_filename is not defined
+
+- name: Create folder {{ install_helper_install_folder }}
+  become: true
+  ansible.builtin.file:
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    dest: "{{ install_helper_install_folder }}"
+
+- name: Move files to install folder {{ install_helper_install_folder }}
+  become: true
+  ansible.builtin.copy:
+    src: "{{ install_helper_tmp_folder }}{{ ('/' + install_helper_unpack_strip_folder) if install_helper_unpack_strip_folder is defined else '' }}/"
+    dest: "{{ install_helper_install_folder }}"
+    remote_src: true
+    mode: "0755"
+  when: install_helper_filename is not defined
+
+- name: Move file to install folder {{ install_helper_install_folder }}
+  become: true
+  ansible.builtin.copy:
+    src: "{{ install_helper_tmp_file }}"
+    dest: "{{ install_helper_install_folder }}/{{ install_helper_filename }}"
+    remote_src: true
+    mode: "0755"
+  when: install_helper_filename is defined

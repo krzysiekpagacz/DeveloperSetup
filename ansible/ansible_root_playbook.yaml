@@ -1,0 +1,3 @@
+---
+- name: Load Settings
+  ansible.builtin.import_playbook: "{{ 'profile_' + user_profile + '.yaml' }}" 

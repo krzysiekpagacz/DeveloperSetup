@@ -1,0 +1,109 @@
+- name: Install TGSwitch
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_checksum: sha256:{{ terraform__tgswitch_checksum_url }}
+    install_helper_download_url: "{{ terraform__tgswitch_download_url }}"
+    install_helper_install_folder: /opt/tgswitch/{{ terraform__tgswitch_version }}/
+    install_helper_register_commands:
+      tgswitch:
+        target: tgswitch
+
+- name: Create terragrunt versions directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.terragrunt.versions/"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "755"
+
+- name: Download terragrunt
+  ansible.builtin.command: tgswitch {{ terraform__terragrunt_version }}
+  register: terragrunt_download_command
+  changed_when: "'downloaded' in terragrunt_download_command.stdout"
+
+- name: Remove obsolete TFSwitch
+  become: true
+  ansible.builtin.file:
+    path: /usr/local/tfswitch
+    state: absent
+
+- name: Install TFSwitch
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_checksum: sha256:{{ terraform__tfswitch_checksum_url }}
+    install_helper_download_url: "{{ terraform__tfswitch_download_url }}"
+    install_helper_install_folder: /opt/tfswitch/{{ terraform__tfswitch_version }}/
+    install_helper_register_commands:
+      tfswitch:
+        target: tfswitch
+
+- name: Create terraform versions directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.terraform.versions/"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "755"
+
+- name: Download terraform
+  ansible.builtin.command: tfswitch {{ terraform__version }}
+  register: terraform_download_command
+  changed_when: "'downloaded' in terraform_download_command.stdout"
+
+- name: Add terraform installation directory to PATH
+  ansible.builtin.blockinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    block: "export PATH=$PATH:{{ ansible_env.HOME }}/bin"
+    marker: "# {mark} ANSIBLE managed - tfswitch"
+
+# Required for the helm provider in terraform
+- name: Increase limit of open files
+  ansible.builtin.blockinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    block: ulimit -n 4096
+    marker: "# {mark} ANSIBLE managed - increased ulimit"
+
+- name: Create terraform plugin cache directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.terraform_cache"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "755"
+
+- name: Create terraform config file
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.terraformrc"
+    state: touch
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "644"
+    modification_time: preserve
+    access_time: preserve
+
+- name: Set directory for cached terraform plugins
+  ansible.builtin.blockinfile:
+    dest: "{{ ansible_env.HOME }}/.terraformrc"
+    block: |
+      # This causes terraform to use a shared cache for downloaded providers,
+      # which saves time and disk space
+      plugin_cache_dir = "{{ ansible_env.HOME }}/.terraform_cache"
+    marker: "# {mark} ANSIBLE managed - terraform cache"
+
+- name: Setup alias to wipe terraform cache
+  ansible.builtin.blockinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    block: alias clean_terraform_cache='rm -r -f -v {{ ansible_env.HOME }}/.terraform_cache/cache/*'
+    marker: "# {mark} ANSIBLE managed - terraform cache cleanup"
+
+- name: Install tflint
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: https://github.com/terraform-linters/tflint/releases/download/{{ terraform__tflint_version }}/tflint_linux_amd64.zip
+    install_helper_install_folder: /opt/tflint/{{ terraform__tflint_version }}/
+    install_helper_register_commands:
+      tflint:
+        target: tflint

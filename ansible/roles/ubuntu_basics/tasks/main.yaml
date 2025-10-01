@@ -1,0 +1,31 @@
+---
+- name: Allow sudo without password
+  become: true
+  ansible.builtin.lineinfile:
+     path: /etc/sudoers
+     state: present
+     regexp: "^{{ ansible_user_id }}"
+     line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
+
+- name: Add fancy PS1 prompt
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env','HOME') }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: fancy PS1 prompt"
+    block: "{{ lookup('template', 'ps1.j2') }}"
+
+- name: Ensure useful shell aliases are present
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env','HOME') }}/.bash_aliases"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: ubuntu_basics aliases"
+    create: yes
+    block: |
+      alias ll='ls -alF'
+      alias la='ls -A'
+      alias l='ls -CF'
+      alias g='git'
+      alias k='kubectl'
+      alias d='docker'
+      alias gs='git status'
+      alias gd='git diff'
+      alias glog='git log --oneline --graph --decorate --all'
+

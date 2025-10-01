@@ -1,0 +1,46 @@
+---
+- name: Check if software is installed in {{ install_helper_install_folder }}
+  ansible.builtin.stat:
+    path: "{{ install_helper_install_folder }}"
+  register: install_helper_bin
+
+- name: Download software into {{ install_helper_install_folder }}
+  when: not install_helper_bin.stat.exists
+  vars:
+    nexus_download_search_url: https://nexus.kabeldeutschland.de/service/rest/v1/search/assets/download?
+  block:
+    - name: Download via checksum from Nexus
+      ansible.builtin.include_tasks:
+        file: downloader.yml
+      vars:
+        download_meta_data_url: "{{ install_helper_download_url | replace('v1/search/assets/download', 'v1/search/assets') }}"
+        download_meta_data: "{{ lookup('ansible.builtin.url', download_meta_data_url, split_lines=False) | from_json }}"
+        install_helper_download_checksum: sha256:{{ download_meta_data['items'][0].checksum.sha256 }}
+      when: install_helper_download_url is search(nexus_download_search_url)
+
+    - name: Download with optional checksum validation
+      ansible.builtin.include_tasks:
+        file: downloader.yml
+      when: install_helper_download_url is not search(nexus_download_search_url)
+
+- name: Cleanup unpack folder {{ install_helper_tmp_folder }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ install_helper_tmp_folder }}"
+    state: absent
+  when: install_helper_filename is not defined
+
+- name: Cleanup downloaded file {{ install_helper_tmp_file }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ install_helper_tmp_file }}"
+    state: absent
+
+- name: Register executable as global command in /usr/local/bin/
+  become: true
+  ansible.builtin.file:
+    src: "{{ install_helper_install_folder }}{{ item.value.target }}"
+    dest: /usr/local/bin/{{ item.key }}
+    state: link
+    force: true
+  loop: "{{ install_helper_register_commands | default({}) | dict2items }}"

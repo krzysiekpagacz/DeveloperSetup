@@ -1,0 +1,12 @@
+user_profile: platform
+
+### Git configuration
+git_user_name: Krzysztof Pagacz
+git_user_email: krzysiekpagacz@gmail.com
+git_default_editor: "vim"
+git_repositories:
+  - repo: "https://github.com/krzysiekpagacz/learn_terraform.git"
+    # dest: /path/to/directory/ if skipped then default location is ~/projects
+
+### Ubuntu basics configuration
+enable_k8s_prompt: false

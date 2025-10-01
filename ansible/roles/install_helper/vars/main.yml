@@ -1,0 +1,3 @@
+---
+install_helper_tmp_file: "{{ install_helper_download_path }}/{{ install_helper_download_url | hash('md5') }}.tmp"
+install_helper_tmp_folder: "{{ install_helper_download_path }}/{{ install_helper_download_url | hash('md5') }}"

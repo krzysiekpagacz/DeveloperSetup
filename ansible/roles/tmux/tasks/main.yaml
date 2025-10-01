@@ -1,0 +1,32 @@
+---
+- name: Install tmux
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    state: latest
+    pkg:
+      - tmux
+  retries: 6
+  delay: 10
+
+- name: Create tmux config folder
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/tmux"
+    state: directory
+    mode: "775"
+
+- name: Copy initial tmux config
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
+    mode: "644"
+    force: false
+
+- name: Attach every terminal to the default tmux session
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: tmux -- attach every terminal to the default tmux session"
+    block: |
+      if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+        tmux attach-session -t default || tmux new-session -s default
+      fi
