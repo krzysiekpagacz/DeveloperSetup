@@ -1,7 +1,3 @@
 ---
-# - name: Show the user ID Ansible is using
-#   ansible.builtin.debug:
-#     msg: "Running as user: {{ ansible_user_id  }}"
-
 - name: Load Settings
   ansible.builtin.import_playbook: "{{ 'profile_' + user_profile + '.yaml' }}" 

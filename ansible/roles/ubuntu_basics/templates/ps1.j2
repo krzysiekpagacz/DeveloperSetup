@@ -1,0 +1,10 @@
+# ANSIBLE MANAGED BLOCK: fancy PS1 prompt
+parse_git_branch() {
+  git branch 2>/dev/null | sed -n '/\* /s///p'
+}
+{% if enable_k8s_prompt %}
+parse_k8s_context() {
+  kubectl config current-context 2>/dev/null
+}
+{% endif %}
+export PS1='\[\e[32m\]\w\[\e[0m\]$(if git rev-parse --is-inside-work-tree &>/dev/null; then echo " (\[\e[33m\]$(parse_git_branch)\[\e[0m\])"; fi)\n\$ '

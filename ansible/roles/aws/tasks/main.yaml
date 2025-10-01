@@ -1,0 +1,24 @@
+---
+- name: Download AWS CLI v2 installer
+  ansible.builtin.get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp/awscliv2.zip
+    mode: '0644'
+
+- name: Unzip AWS CLI installer
+  ansible.builtin.unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /tmp
+    remote_src: yes
+
+- name: Run AWS CLI installer
+  become: true
+  ansible.builtin.command: /tmp/aws/install --update
+  args:
+    creates: /usr/local/bin/aws
+
+- name: Ensure .aws directory exists
+  ansible.builtin.file:
+    path: "{{ lookup('env','HOME') }}/.aws"
+    state: directory
+    mode: '0700'

@@ -7,6 +7,12 @@
      regexp: "^{{ ansible_user_id }}"
      line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
 
+- name: Add fancy PS1 prompt
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env','HOME') }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: fancy PS1 prompt"
+    block: "{{ lookup('template', 'ps1.j2') }}"
+
 - name: Ensure useful shell aliases are present
   ansible.builtin.blockinfile:
     path: "{{ lookup('env','HOME') }}/.bash_aliases"

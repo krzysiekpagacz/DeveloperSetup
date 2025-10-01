@@ -1,0 +1,40 @@
+---
+- name: Add Google Cloud repo key
+  become: true
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    keyring: /usr/share/keyrings/cloud.google.gpg
+    state: present
+
+- name: Add Google Cloud SDK repo to source list
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main"
+    state: present
+    filename: google-cloud-sdk
+    update_cache: yes
+
+- name: Update apt cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install gcloud CLI
+  become: true
+  ansible.builtin.apt:
+    name: google-cloud-cli
+    state: latest
+    install_recommends: no
+  retries: 6
+  delay: 10
+
+- name: Verify gcloud installation
+  ansible.builtin.command: 
+    cmd: gcloud --version
+  register: gcloud_version
+  changed_when: false
+
+- name: Show gcloud version
+  ansible.builtin.debug:
+    msg: "{{ gcloud_version.stdout_lines }}"

@@ -1,0 +1,106 @@
+---
+- name: Install kubectl
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: https://dl.k8s.io/release/{{ k8s_tools__kubectl_version }}/bin/linux/amd64/kubectl
+    install_helper_download_checksum: sha256:https://dl.k8s.io/release/{{ k8s_tools__kubectl_version }}/bin/linux/amd64/kubectl.sha256
+    install_helper_install_folder: /opt/kubectl/{{ k8s_tools__kubectl_version }}/
+    install_helper_filename: kubectl
+    install_helper_register_commands:
+      kubectl:
+        target: kubectl
+
+- name: Enable kubectl bash completion
+  when: k8s_tools__kubectl_autocomplete
+  block:
+    - name: Install bash-completion
+      become: true
+      ansible.builtin.apt:
+        name: bash-completion
+        state: present
+
+    - name: Configure kubectl autocomplete
+      block:
+        - name: Remove old block from .bashrc
+          ansible.builtin.blockinfile:
+            path: "{{ ansible_env.HOME }}/.bashrc"
+            state: absent
+            marker: "# {mark} ANSIBLE MANAGED BLOCK: kubectl bash completion"
+        - name: Add bash completion to .bashrc
+          ansible.builtin.blockinfile:
+            path: "{{ ansible_env.HOME }}/.bashrc"  # Putting block in .bashrc because it's bash-specific
+            marker: "# {mark} ANSIBLE MANAGED BLOCK: kubectl bash completion"
+            block: |
+              if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+                source /etc/bash_completion
+                source <(kubectl completion bash)
+              fi
+
+- name: Create the default .kube directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "755"
+
+- name: Install k9s
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: https://github.com/derailed/k9s/releases/download/{{ k8s_tools__k9s_version }}/k9s_Linux_amd64.tar.gz
+    install_helper_download_checksum: sha256:https://github.com/derailed/k9s/releases/download/{{ k8s_tools__k9s_version }}/checksums.sha256
+    install_helper_install_folder: /opt/k9s/{{ k8s_tools__k9s_version }}/
+    install_helper_register_commands:
+      k9s:
+        target: k9s
+
+- name: Remove manual installation of Helm
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/local/helm
+    - /usr/local/bin/helm
+
+- name: Install Helm
+  become: true
+  community.general.snap:
+    name: helm
+    classic: true
+
+- name: Install helm-git plugin
+  kubernetes.core.helm_plugin:
+    plugin_path: https://github.com/aslafy-z/helm-git
+    plugin_version: "0.15.1"
+    state: present
+
+- name: Install helm-secrets plugin
+  kubernetes.core.helm_plugin:
+    plugin_path: https://github.com/jkroepke/helm-secrets
+    plugin_version: "4.6.5"
+    state: present
+
+- name: Install kubectx
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: https://github.com/ahmetb/kubectx/releases/download/{{ k8s_tools__kubectx_version }}/kubectx
+    install_helper_install_folder: /opt/kubectx/{{ k8s_tools__kubectx_version }}/
+    install_helper_filename: kubectx
+    install_helper_register_commands:
+      kubectx:
+        target: kubectx
+
+- name: Install kubens
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: https://github.com/ahmetb/kubectx/releases/download/{{ k8s_tools__kubectx_version }}/kubens
+    install_helper_install_folder: /opt/kubens/{{ k8s_tools__kubectx_version }}/
+    install_helper_filename: kubens
+    install_helper_register_commands:
+      kubens:
+        target: kubens

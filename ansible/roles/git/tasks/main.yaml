@@ -84,6 +84,7 @@
 - name: Clone repository
   ansible.builtin.git:
     repo: "{{ item.repo }}"
+    version: main
     dest: "{{ item.dest | default('~/projects/' + (item.repo | basename | regex_replace('\\.git$', '')) ) }}"
     clone: yes
     update: yes

@@ -2,7 +2,15 @@
 - name: Basic setup
   hosts: all
   roles:
-    - ubuntu_basics
-    - git
+    - aws
+    - cli_utils
+    - docker
     - fzf
+    - gcloud_cli
+    - git
+    - go
+    - iac-tools
+    - k8s
+    - tmux
+    - ubuntu_basics
     - vscode

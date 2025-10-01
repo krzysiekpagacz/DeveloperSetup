@@ -1,0 +1,26 @@
+---
+- name: Install CLI Utils
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    state: latest
+    pkg:
+      - apt-transport-https
+      - bash-completion
+      - coreutils
+      - curl
+      - gnupg
+      - graphviz
+      - htop
+      - jq
+      - lsb-release
+      - moreutils
+      - python3-pip
+      - ssh
+      - tar
+      - unzip
+      - wget
+      - vim
+      - yq
+  retries: 6
+  delay: 10
