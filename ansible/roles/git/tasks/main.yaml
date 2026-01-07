@@ -81,14 +81,6 @@
     owner: "{{ ansible_user_id | default(lookup('env','USER')) }}"
     group: "{{ ansible_user_gid | default(lookup('env','USER')) }}"
 
-- name: Clone repository
-  ansible.builtin.git:
-    repo: "{{ item.repo }}"
-    version: main
-    dest: "{{ item.dest | default('~/projects/' + (item.repo | basename | regex_replace('\\.git$', '')) ) }}"
-    clone: yes
-    update: yes
-  with_items: "{{ git_repositories }}"
 
 - name: Set Git to auto-setup remote on push
   community.general.git_config:
