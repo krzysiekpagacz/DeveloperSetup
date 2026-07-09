@@ -2,16 +2,24 @@
 - name: Allow sudo without password
   become: true
   ansible.builtin.lineinfile:
-     path: /etc/sudoers
-     state: present
-     regexp: "^{{ ansible_user_id }}"
-     line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
+    path: /etc/sudoers
+    state: present
+    regexp: "^{{ ansible_user_id }}"
+    line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
 
 - name: Add fancy PS1 prompt
   ansible.builtin.blockinfile:
     path: "{{ lookup('env','HOME') }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: fancy PS1 prompt"
     block: "{{ lookup('template', 'ps1.j2') }}"
+
+- name: Set default shell editor (EDITOR/VISUAL)
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env','HOME') }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: default editor"
+    block: |
+      export EDITOR="{{ default_editor }}"
+      export VISUAL="{{ default_editor }}"
 
 - name: Ensure useful shell aliases are present
   ansible.builtin.blockinfile:
@@ -55,4 +63,3 @@
       alias hs='helm search repo'
       alias hpu='helm push'
       alias hdc='helm dependency'
-

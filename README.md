@@ -7,6 +7,12 @@ Ansible-based provisioning for my personal Ubuntu development environment. Runni
 - Ubuntu (or an Ubuntu-based environment, e.g. WSL2)
 - `sudo` access
 - `ansible` and `ansible-galaxy` on `PATH` (the script's `apt` install lines for these are currently commented out in `provision_environment.sh` — install them manually first if they're missing: `sudo apt-get install ansible python3-keyring`)
+- A GitHub token stored in the OS keyring, so the `git` role's HTTPS credential helper can authenticate pushes/pulls without prompting:
+  ```bash
+  keyring set github_token <github.com/someaccount>
+  ```
+  Paste a GitHub Personal Access Token (classic, `repo` scope, or a fine-grained token scoped to the repos you need) when prompted. Verify it with `keyring get github_token github.com/krzysiekpagacz`.
+  On WSL, `keyring` needs a working Secret Service backend (e.g. `gnome-keyring-daemon`) — there's no desktop session by default, so this may need extra setup there.
 
 ## Quick start
 
@@ -26,8 +32,8 @@ All user-specific settings live in `vars.yaml`:
 | Variable                          | Purpose                                                                                 |
 | --------------------------------- | --------------------------------------------------------------------------------------- |
 | `user_profile`                    | Selects which `ansible/profile_<name>.yaml` playbook to run (currently only `platform`) |
+| `default_editor`                  | Default editor: git's `core.editor` and the shell's `$EDITOR`/`$VISUAL`                 |
 | `git_user_name`, `git_user_email` | Global git identity                                                                     |
-| `git_default_editor`              | Global `core.editor`                                                                    |
 | `git_repositories`                | Repos to auto-clone into `~/projects` (or a custom `dest`)                              |
 | `enable_k8s_prompt`               | Show the current kubectl context in the shell prompt                                    |
 

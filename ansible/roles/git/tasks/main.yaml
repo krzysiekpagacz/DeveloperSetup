@@ -24,7 +24,7 @@
   community.general.git_config:
     scope: global
     name: core.editor
-    value: "{{ git_default_editor }}"
+    value: "{{ default_editor }}"
     state: present
 
 - name: Set additional Git configuration

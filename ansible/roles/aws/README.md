@@ -2,7 +2,7 @@
 
 ## General
 
-Installs the AWS CLI v2 by downloading and running the official installer, and ensures a `~/.aws` config directory exists with restrictive (`0700`) permissions.
+Installs the AWS CLI v2 by downloading and running the official installer, and ensures a `~/.aws` config directory exists with restrictive (`0700`) permissions. Ensures `unzip` is present itself (needed to extract the installer archive) rather than relying on the `cli_utils` role having already run.
 
 ## What it installs
 

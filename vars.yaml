@@ -1,9 +1,12 @@
 user_profile: platform
 
+### Editor configuration
+# Used as both git's core.editor and the shell's $EDITOR/$VISUAL
+default_editor: "vim"
+
 ### Git configuration
 git_user_name: Krzysztof Pagacz
 git_user_email: krzysiekpagacz@gmail.com
-git_default_editor: "vim"
 git_repositories:
   - repo: "https://github.com/krzysiekpagacz/learn_terraform.git"
     # dest: /path/to/directory/ if skipped then default location is ~/projects
