@@ -2,7 +2,7 @@
 
 ## General
 
-Installs Docker Engine (via the external `nickjj.docker` role) with custom bridge/address-pool daemon flags and the current user added to the `docker` group. Also removes legacy Docker apt repo/key artifacts, installs the Amazon ECR credential helper, and configures `~/.docker/config.json` (proxy settings and ECR credential store).
+Installs Docker Engine (via the external `nickjj.docker` role, pinned in `ansible/ansible_requirements.yaml` — must be >= v2.5.2, since earlier versions use a conditional incompatible with newer strict ansible-core) with custom bridge/address-pool daemon flags and the current user added to the `docker` group. Also removes legacy Docker apt repo/key artifacts, installs the Amazon ECR credential helper, and configures `~/.docker/config.json` (proxy settings and ECR credential store).
 
 ## What it installs
 

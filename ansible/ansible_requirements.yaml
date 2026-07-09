@@ -9,7 +9,7 @@ roles:
       visual_studio_code_apt_repository_file: "vscode.list"
       visual_studio_code_apt_repository_use_sources_list: false
   - name: nickjj.docker
-    version: v2.5.1
+    version: v2.5.3
 
 collections:
   - name: ansible.posix

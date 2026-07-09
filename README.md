@@ -6,13 +6,7 @@ Ansible-based provisioning for my personal Ubuntu development environment. Runni
 
 - Ubuntu (or an Ubuntu-based environment, e.g. WSL2)
 - `sudo` access
-- `ansible` and `ansible-galaxy` on `PATH` (the script's `apt` install lines for these are currently commented out in `provision_environment.sh` — install them manually first if they're missing: `sudo apt-get install ansible python3-keyring`)
-- A GitHub token stored in the OS keyring, so the `git` role's HTTPS credential helper can authenticate pushes/pulls without prompting:
-  ```bash
-  keyring set github_token <github.com/someaccount>
-  ```
-  Paste a GitHub Personal Access Token (classic, `repo` scope, or a fine-grained token scoped to the repos you need) when prompted. Verify it with `keyring get github_token github.com/krzysiekpagacz`.
-  On WSL, `keyring` needs a working Secret Service backend (e.g. `gnome-keyring-daemon`) — there's no desktop session by default, so this may need extra setup there.
+- `ansible` on `PATH` (`provision_environment.sh` installs it automatically on first run if missing)
 
 ## Quick start
 
@@ -24,6 +18,16 @@ This will:
 
 1. Wipe and reinstall Ansible roles/collections from `ansible/ansible_requirements.yaml` into `~/.ansible/roles`.
 2. Run `ansible-playbook` locally (`--connection=local`, inventory `127.0.0.1`) using `vars.yaml` as extra vars, prompting for your `sudo` password.
+
+### After the first run: set your GitHub token
+
+The `git` role installs `python3-keyring` and `python3-keyrings.alt` (the latter is a fallback backend for environments with no Secret Service daemon, e.g. WSL) and configures git's HTTPS credential helper to read your GitHub token from the OS keyring. Once provisioning has run at least once, store your token:
+
+```bash
+keyring set github_token <github.com/your-username>
+```
+
+Paste a GitHub Personal Access Token (classic, `repo` scope, or a fine-grained token scoped to the repos you need) when prompted. On WSL/headless systems this also prompts for a separate keyring passphrase the first time (to encrypt the local file-based store) — that's independent of the GitHub token itself. Verify with `keyring get github_token <github.com/your-username>`.
 
 ## Configuration
 

@@ -7,6 +7,8 @@
     pkg:
       - git
       - git-extras
+      - python3-keyring
+      - python3-keyrings.alt
   retries: 3
   delay: 10
 
