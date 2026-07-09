@@ -1,5 +1,18 @@
 k8s_tools__kubectl_version: v1.34.0
 k8s_tools__kubectl_autocomplete: true
 k8s_tools__k9s_version: v0.50.13
-k8s_tools__kubectl_neat_version: v2.0.4
 k8s_tools__kubectx_version: v0.9.5
+k8s_tools__krew_version: v0.5.0
+k8s_tools__krew_plugins:
+  - ktop
+  - stern
+  - neat
+  - tree
+  - who-can
+  - access-matrix
+  - view-secret
+  - outdated
+  - resource-capacity
+  - df-pv
+  - node-shell
+  - sniff
