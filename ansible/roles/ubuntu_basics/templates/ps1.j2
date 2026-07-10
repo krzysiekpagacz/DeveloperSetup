@@ -7,18 +7,34 @@ parse_k8s_context() {
   local ctx ns
   ctx=$(kubectl config current-context 2>/dev/null) || return
   ns=$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)
+  # GKE context names are gke_<project>_<zone>_<cluster>; show just <cluster>
+  ctx="${ctx##gke_*_*_}"
   echo "${ctx}:${ns:-default}"
 }
 {% endif %}
-__ps1_capture_exit_status() {
-  __ps1_last_exit=$?
-}
-PROMPT_COMMAND="__ps1_capture_exit_status${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
-parse_exit_status() {
-  if [ "${__ps1_last_exit:-0}" -eq 0 ]; then
-    printf '\[\e[32m\]✓\[\e[0m\]'
+__ps1_build() {
+  local exit_code=$? status_color status_symbol k8s_ctx
+
+  if [ "$exit_code" -eq 0 ]; then
+    status_color='\[\e[32m\]'
+    status_symbol='✓'
   else
-    printf '\[\e[31m\]✗\[\e[0m\]'
+    status_color='\[\e[31m\]'
+    status_symbol='✗'
   fi
+
+  PS1="${status_color}${status_symbol}\[\e[0m\] \[\e[32m\]\w\[\e[0m\]"
+
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    PS1="${PS1} (\[\e[33m\]$(parse_git_branch)\[\e[0m\])"
+  fi
+{% if enable_k8s_prompt %}
+  k8s_ctx=$(parse_k8s_context)
+  if [ -n "$k8s_ctx" ]; then
+    PS1="${PS1} [\[\e[36m\]${k8s_ctx}\[\e[0m\]]"
+  fi
+{% endif %}
+
+  PS1="${PS1}\n\$ "
 }
-export PS1='$(parse_exit_status) \[\e[32m\]\w\[\e[0m\]$(if git rev-parse --is-inside-work-tree &>/dev/null; then echo " (\[\e[33m\]$(parse_git_branch)\[\e[0m\])"; fi){% if enable_k8s_prompt %}$(k8s_ctx=$(parse_k8s_context); if [ -n "$k8s_ctx" ]; then echo " [\[\e[36m\]${k8s_ctx}\[\e[0m\]]"; fi){% endif %}\n\$ '
+PROMPT_COMMAND="__ps1_build${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
