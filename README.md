@@ -57,10 +57,59 @@ Roles are applied in this order by `ansible/profile_platform.yaml`:
 | `iac-tools`     | Installs `tgswitch`/`tfswitch` (Terraform & Terragrunt version managers), `tflint`, sets up a shared Terraform plugin cache                                                                                                                                             |
 | `k8s`           | Installs `kubectl` (+ bash completion), `k9s`, Helm (via snap) with `helm-git`/`helm-secrets` plugins, `kubectx`/`kubens`, and `krew` with plugins: ktop, stern, neat, tree, who-can, access-matrix, view-secret, outdated, resource-capacity, df-pv, node-shell, sniff |
 | `tmux`          | Installs tmux, drops in `ansible/roles/tmux/files/tmux.conf`, auto-attaches every new terminal to a `default` tmux session                                                                                                                                              |
-| `ubuntu_basics` | Passwordless `sudo`, a git-aware PS1 prompt, and a set of shell aliases (git/docker/k8s/terraform/tmux shortcuts) in `.bash_aliases`                                                                                                                                    |
-| `vscode`        | Installs VS Code (desktop, via apt) and writes baseline `settings.json`                                                                                                                                                                                                 |
+| `ubuntu_basics` | Passwordless `sudo`, a git-aware PS1 prompt (with exit-status indicator and, when enabled, kubectl context:namespace), and a set of shell aliases (git/docker/k8s/terraform/tmux shortcuts) in `.bash_aliases`                                                          |
 
 `install_helper` is a shared utility role (not applied directly) used by `iac-tools` and `k8s` to download a versioned release archive/binary, verify its checksum, and symlink it into `/usr/local/bin`.
+
+`vscode` is also present but **not applied** by the `platform` profile: on WSL with the standard Windows VS Code + Remote-WSL workflow, VS Code's settings and extensions live outside this WSL filesystem entirely (Windows side, and `~/.vscode-server` which only exists after the first Remote-WSL connection), so there's nothing useful for this repo to manage there. If that's your setup, add the extensions and settings below on the Windows side instead. The role stays available for setups that run the Linux desktop VS Code directly inside WSL (e.g. via WSLg) or on a non-WSL Ubuntu box — see `ansible/roles/vscode/README.md`.
+
+### VS Code (Windows side, for Remote-WSL users)
+
+Install these extensions from the Extensions panel (VS Code will offer to install them "in WSL: \<distro\>" too when you're connected — decline that unless you actually need them server-side):
+
+- `hashicorp.terraform`
+- `gruntwork.terragrunt-ls`
+- `eamodio.gitlens`
+- `redhat.vscode-yaml`
+
+And add to your Windows-side user settings (`Ctrl+Shift+P` → "Preferences: Open User Settings (JSON)"):
+
+```json
+{
+  "redhat.telemetry.enabled": true,
+  "editor.fontSize": 9,
+  "editor.formatOnSave": false,
+  "editor.renderWhitespace": "all",
+  "files.insertFinalNewline": true,
+  "files.associations": {
+    "**/templates/*.yaml": "yaml",
+    "**/templates/*.tpl": "yaml",
+    "**/templates/**/*.yaml": "yaml",
+    "**/templates/**/*.tpl": "yaml",
+    "**/*.yaml.gotmpl": "yaml"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[helm]": {
+    "editor.formatOnSave": true
+  },
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.tabSize": 2
+  },
+  "[terraform-vars]": {
+    "editor.tabSize": 2
+  },
+  "window.openFilesInNewWindow": "on",
+  "workbench.editor.enablePreview": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "security.allowedUNCHosts": ["wsl.localhost"],
+  "remote.autoForwardPortsSource": "hybrid"
+}
+```
 
 ## Repo layout
 

@@ -15,12 +15,11 @@
     state: directory
     mode: "775"
 
-- name: Copy initial tmux config
+- name: Copy tmux config
   ansible.builtin.copy:
     src: tmux.conf
     dest: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
     mode: "644"
-    force: false
 
 - name: Attach every terminal to the default tmux session
   ansible.builtin.blockinfile:

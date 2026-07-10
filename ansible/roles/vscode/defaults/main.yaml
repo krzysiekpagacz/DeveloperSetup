@@ -1,0 +1,6 @@
+---
+vscode_extensions:
+  - hashicorp.terraform
+  - gruntwork.terragrunt-ls
+  - eamodio.gitlens
+  - redhat.vscode-yaml

@@ -6,25 +6,64 @@
       become: true
 
 - name: Remove legacy repo
-  become: true  
+  become: true
   ansible.builtin.apt_repository:
-    repo: 'deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main'
+    repo: "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
     state: absent
-    filename: 'vscode-legacy'
+    filename: "vscode-legacy"
     update_cache: yes
+
+- name: Install VSCode extensions
+  ansible.builtin.command: "code --install-extension {{ item }} --force"
+  environment:
+    DONT_PROMPT_WSL_INSTALL: "1" # code's CLI refuses to run non-interactively under WSL otherwise
+  loop: "{{ vscode_extensions }}"
+  register: vscode_extension_install
+  changed_when: "'was successfully installed' in vscode_extension_install.stdout"
+
+- name: Ensure VSCode user config directory exists
+  ansible.builtin.file:
+    path: "{{ lookup('env','HOME') }}/.config/Code/User"
+    state: directory
+    mode: "0755"
 
 - name: Set up additional VSCode settings
   ansible.builtin.copy:
     dest: "{{ lookup('env','HOME') }}/.config/Code/User/settings.json"
     content: |
-      // ANSIBLE MANAGED BLOCK: vscode ensure final newline
+      // ANSIBLE MANAGED BLOCK: vscode settings
       {
         "redhat.telemetry.enabled": true,
         "editor.fontSize": 9,
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
+        "editor.renderWhitespace": "all",
         "files.insertFinalNewline": true,
+        "files.associations": {
+          "**/templates/*.yaml": "yaml",
+          "**/templates/*.tpl": "yaml",
+          "**/templates/**/*.yaml": "yaml",
+          "**/templates/**/*.tpl": "yaml",
+          "**/*.yaml.gotmpl": "yaml"
+        },
+        "[yaml]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "redhat.vscode-yaml"
+        },
+        "[helm]": {
+          "editor.formatOnSave": true
+        },
         "[terraform]": {
-          "editor.defaultFormatter": "hashicorp.terraform"
-        }
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.tabSize": 2
+        },
+        "[terraform-vars]": {
+          "editor.tabSize": 2
+        },
+        "window.openFilesInNewWindow": "on",
+        "workbench.editor.enablePreview": false,
+        "explorer.confirmDragAndDrop": false,
+        "explorer.confirmDelete": false,
+        "security.allowedUNCHosts": ["wsl.localhost"],
+        "remote.autoForwardPortsSource": "hybrid"
       }
-    mode: '0644'
+    mode: "0644"

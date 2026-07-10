@@ -13,4 +13,7 @@
     - k8s
     - tmux
     - ubuntu_basics
-    - vscode
+    # vscode is intentionally not applied here: on WSL with the standard
+    # Windows VS Code + Remote-WSL workflow, VS Code itself, its settings,
+    # and its extensions all live outside this WSL filesystem (Windows side
+    # and ~/.vscode-server, respectively). See ansible/roles/vscode/README.md.

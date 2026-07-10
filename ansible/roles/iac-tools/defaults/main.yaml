@@ -1,4 +1,4 @@
-terraform__terragrunt_version: v0.67.16
+terraform__terragrunt_version: v1.1.0
 terraform__tgswitch_base_url: https://github.com/warrensbox/tgswitch/releases/download/{{ terraform__tgswitch_version }}
 terraform__tgswitch_checksum_url: "{{ terraform__tgswitch_base_url }}/tgswitch_{{ terraform__tgswitch_version }}_checksums.txt"
 terraform__tgswitch_download_url: "{{ terraform__tgswitch_base_url }}/tgswitch_{{ terraform__tgswitch_version }}_linux_amd64.tar.gz"
@@ -6,7 +6,7 @@ terraform__tgswitch_version: "0.6.0"
 terraform__tfswitch_base_url: https://github.com/warrensbox/terraform-switcher/releases/download/{{ terraform__tfswitch_version }}
 terraform__tfswitch_checksum_url: "{{ terraform__tfswitch_base_url }}/terraform-switcher_{{ terraform__tfswitch_version }}_checksums.txt"
 terraform__tfswitch_download_url: "{{ terraform__tfswitch_base_url }}/terraform-switcher_{{ terraform__tfswitch_version }}_linux_amd64.tar.gz"
-terraform__tfswitch_version: "0.13.1288"
-terraform__version: 1.7.5
-terraform__tflint_version: v0.50.3
+terraform__tfswitch_version: "v1.19.0"
+terraform__version: 1.15.8
+terraform__tflint_version: v0.63.1
 terraform__cache_dir: "{{ folder.projects_root }}/{{ folder.terraform }}/cache"

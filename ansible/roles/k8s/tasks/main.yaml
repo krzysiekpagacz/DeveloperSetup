@@ -74,14 +74,16 @@
 - name: Install helm-git plugin
   kubernetes.core.helm_plugin:
     plugin_path: https://github.com/aslafy-z/helm-git
-    plugin_version: "0.15.1"
+    plugin_version: "v1.5.2"
     state: present
+    verify: false
 
 - name: Install helm-secrets plugin
   kubernetes.core.helm_plugin:
     plugin_path: https://github.com/jkroepke/helm-secrets
-    plugin_version: "4.6.5"
+    plugin_version: "v4.7.7"
     state: present
+    verify: false
 
 - name: Install kubectx
   ansible.builtin.include_role:

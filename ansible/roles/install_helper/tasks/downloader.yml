@@ -16,6 +16,10 @@
     validate_certs: true
     timeout: "{{ install_helper_download_timeout_seconds }}"
     mode: "0755"
+  register: install_helper_download_result
+  retries: 3
+  delay: 10
+  until: install_helper_download_result is succeeded
 
 - name: Create unpack folder {{ install_helper_tmp_folder }}
   become: true
