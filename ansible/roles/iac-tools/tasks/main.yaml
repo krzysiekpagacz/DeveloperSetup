@@ -11,10 +11,10 @@
 
 - name: Create terragrunt versions directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.terragrunt.versions/"
+    path: "{{ ansible_facts.env.HOME }}/.terragrunt.versions/"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "755"
 
 - name: Download terragrunt
@@ -41,10 +41,10 @@
 
 - name: Create terraform versions directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.terraform.versions/"
+    path: "{{ ansible_facts.env.HOME }}/.terraform.versions/"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "755"
 
 - name: Download terraform
@@ -54,48 +54,48 @@
 
 - name: Add terraform installation directory to PATH
   ansible.builtin.blockinfile:
-    dest: "{{ ansible_env.HOME }}/.bashrc"
-    block: "export PATH=$PATH:{{ ansible_env.HOME }}/bin"
+    dest: "{{ ansible_facts.env.HOME }}/.bashrc"
+    block: "export PATH=$PATH:{{ ansible_facts.env.HOME }}/bin"
     marker: "# {mark} ANSIBLE managed - tfswitch"
 
 # Required for the helm provider in terraform
 - name: Increase limit of open files
   ansible.builtin.blockinfile:
-    dest: "{{ ansible_env.HOME }}/.bashrc"
+    dest: "{{ ansible_facts.env.HOME }}/.bashrc"
     block: ulimit -n 4096
     marker: "# {mark} ANSIBLE managed - increased ulimit"
 
 - name: Create terraform plugin cache directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.terraform_cache"
+    path: "{{ ansible_facts.env.HOME }}/.terraform_cache"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "755"
 
 - name: Create terraform config file
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.terraformrc"
+    path: "{{ ansible_facts.env.HOME }}/.terraformrc"
     state: touch
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "644"
     modification_time: preserve
     access_time: preserve
 
 - name: Set directory for cached terraform plugins
   ansible.builtin.blockinfile:
-    dest: "{{ ansible_env.HOME }}/.terraformrc"
+    dest: "{{ ansible_facts.env.HOME }}/.terraformrc"
     block: |
       # This causes terraform to use a shared cache for downloaded providers,
       # which saves time and disk space
-      plugin_cache_dir = "{{ ansible_env.HOME }}/.terraform_cache"
+      plugin_cache_dir = "{{ ansible_facts.env.HOME }}/.terraform_cache"
     marker: "# {mark} ANSIBLE managed - terraform cache"
 
 - name: Setup alias to wipe terraform cache
   ansible.builtin.blockinfile:
-    dest: "{{ ansible_env.HOME }}/.bashrc"
-    block: alias clean_terraform_cache='rm -r -f -v {{ ansible_env.HOME }}/.terraform_cache/cache/*'
+    dest: "{{ ansible_facts.env.HOME }}/.bashrc"
+    block: alias clean_terraform_cache='rm -r -f -v {{ ansible_facts.env.HOME }}/.terraform_cache/cache/*'
     marker: "# {mark} ANSIBLE managed - terraform cache cleanup"
 
 - name: Install tflint

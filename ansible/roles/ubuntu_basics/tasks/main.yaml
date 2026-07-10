@@ -4,8 +4,8 @@
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
-    regexp: "^{{ ansible_user_id }}"
-    line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
+    regexp: "^{{ ansible_facts.user_id }}"
+    line: "{{ ansible_facts.user_id }} ALL=(ALL) NOPASSWD: ALL"
 
 - name: Add fancy PS1 prompt
   ansible.builtin.blockinfile:

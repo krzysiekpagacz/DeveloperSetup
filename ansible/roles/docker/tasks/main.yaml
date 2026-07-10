@@ -9,43 +9,43 @@
     docker__version: ""
     docker__state: present
     docker__compose_v2_version: ""
-    docker__users: ["{{ ansible_user_id }}"]
+    docker__users: ["{{ ansible_facts.user_id }}"]
     docker__daemon_flags:
       - --bip 172.30.1.1/24
       - --default-address-pool base=172.40.0.0/16,size=24
 
-- name: Remove outdated repository
+- name: Remove legacy Docker apt source (superseded by nickjj.docker's own docker.sources; a leftover .list here conflicts with it)
   become: true
-  ansible.builtin.lineinfile:
+  ansible.builtin.file:
     path: /etc/apt/sources.list.d/download_docker_com_linux_ubuntu.list
     state: absent
-    search_string: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
 - name: Cleanup apt-key in deprecated /etc/apt/trusted.gpg
   become: true
-  ansible.builtin.apt_key:
-    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-    state: absent
+  ansible.builtin.command: apt-key del 0EBFCD88
+  register: docker_legacy_apt_key_removed
+  changed_when: "'OK' in docker_legacy_apt_key_removed.stdout"
+  failed_when: false
 
 - name: Create Docker directory
   become: true
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/docker"
+    path: "{{ ansible_facts.env.HOME }}/docker"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "755"
 
 - name: Install python module for docker_network
   ansible.builtin.pip:
     name: docker==4.4.4
-    virtualenv: "{{ ansible_env.HOME }}/.local/bin/poetry/"
+    virtualenv: "{{ ansible_facts.env.HOME }}/.local/bin/poetry/"
 
 - name: Create Docker config directory
   ansible.builtin.file:
     path: "~/.docker"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "700"
 
 - name: Set Docker config file name

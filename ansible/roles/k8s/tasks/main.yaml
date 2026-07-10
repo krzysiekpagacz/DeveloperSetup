@@ -24,12 +24,12 @@
       block:
         - name: Remove old block from .bashrc
           ansible.builtin.blockinfile:
-            path: "{{ ansible_env.HOME }}/.bashrc"
+            path: "{{ ansible_facts.env.HOME }}/.bashrc"
             state: absent
             marker: "# {mark} ANSIBLE MANAGED BLOCK: kubectl bash completion"
         - name: Add bash completion to .bashrc
           ansible.builtin.blockinfile:
-            path: "{{ ansible_env.HOME }}/.bashrc" # Putting block in .bashrc because it's bash-specific
+            path: "{{ ansible_facts.env.HOME }}/.bashrc" # Putting block in .bashrc because it's bash-specific
             marker: "# {mark} ANSIBLE MANAGED BLOCK: kubectl bash completion"
             block: |
               if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
@@ -39,10 +39,10 @@
 
 - name: Create the default .kube directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.kube"
+    path: "{{ ansible_facts.env.HOME }}/.kube"
     state: directory
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     mode: "755"
 
 - name: Install k9s
@@ -109,7 +109,7 @@
 
 - name: Check if krew is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.krew/bin/kubectl-krew"
+    path: "{{ ansible_facts.env.HOME }}/.krew/bin/kubectl-krew"
   register: krew_bin
 
 - name: Install krew
@@ -145,15 +145,15 @@
 
 - name: Add krew to PATH
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts.env.HOME }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: krew PATH"
     block: |
       export PATH="${PATH}:${HOME}/.krew/bin"
 
 - name: Install kubectl krew plugins
-  ansible.builtin.command: "{{ ansible_env.HOME }}/.krew/bin/kubectl-krew install {{ item }}"
+  ansible.builtin.command: "{{ ansible_facts.env.HOME }}/.krew/bin/kubectl-krew install {{ item }}"
   environment:
-    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.krew/bin"
+    PATH: "{{ ansible_facts.env.PATH }}:{{ ansible_facts.env.HOME }}/.krew/bin"
   loop: "{{ k8s_tools__krew_plugins }}"
   register: krew_plugin_install
   changed_when: "'Installed plugin' in krew_plugin_install.stdout"

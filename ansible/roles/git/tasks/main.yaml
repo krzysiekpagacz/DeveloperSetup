@@ -80,8 +80,8 @@
     path: "{{ lookup('env','HOME') }}/projects"
     state: directory
     mode: "0755"
-    owner: "{{ ansible_user_id | default(lookup('env','USER')) }}"
-    group: "{{ ansible_user_gid | default(lookup('env','USER')) }}"
+    owner: "{{ ansible_facts.user_id | default(lookup('env','USER')) }}"
+    group: "{{ ansible_facts.user_gid | default(lookup('env','USER')) }}"
 
 - name: Clone repository
   ansible.builtin.git:

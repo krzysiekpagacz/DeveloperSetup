@@ -1,18 +1,24 @@
 ---
-- name: Add Google Cloud repo key
+- name: Remove legacy Google Cloud SDK apt source and key (superseded by deb822_repository below; a leftover .list here conflicts with it on Signed-By)
   become: true
-  ansible.builtin.apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    keyring: /usr/share/keyrings/cloud.google.gpg
-    state: present
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/google-cloud-sdk.list
+    - /usr/share/keyrings/cloud.google.gpg
 
-- name: Add Google Cloud SDK repo to source list
+- name: Add Google Cloud SDK apt repository
   become: true
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main"
+  ansible.builtin.deb822_repository:
+    name: google-cloud-sdk
+    types: deb
+    uris: https://packages.cloud.google.com/apt
+    suites: cloud-sdk
+    components: main
+    signed_by: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
-    filename: google-cloud-sdk
-    update_cache: yes
+    install_python_debian: true
 
 - name: Update apt cache
   become: true
@@ -30,7 +36,7 @@
   delay: 10
 
 - name: Verify gcloud installation
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: gcloud --version
   register: gcloud_version
   changed_when: false

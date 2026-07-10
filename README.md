@@ -117,6 +117,7 @@ And add to your Windows-side user settings (`Ctrl+Shift+P` → "Preferences: Ope
 provision_environment.sh          # entry point
 vars.yaml                         # user-specific variables
 ansible/
+  ansible.cfg                     # sets interpreter_python=auto_silent (silences interpreter-discovery warning)
   ansible_requirements.yaml       # galaxy roles/collections
   ansible_root_playbook.yaml      # imports the selected profile
   profile_platform.yaml           # role list for the "platform" profile

@@ -26,8 +26,8 @@
   ansible.builtin.file:
     state: directory
     mode: "0755"
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     dest: "{{ install_helper_tmp_folder }}"
   when: install_helper_filename is not defined
 
@@ -44,8 +44,8 @@
   ansible.builtin.file:
     state: directory
     mode: "0755"
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_id }}"
+    owner: "{{ ansible_facts.user_id }}"
+    group: "{{ ansible_facts.user_id }}"
     dest: "{{ install_helper_install_folder }}"
 
 - name: Move files to install folder {{ install_helper_install_folder }}

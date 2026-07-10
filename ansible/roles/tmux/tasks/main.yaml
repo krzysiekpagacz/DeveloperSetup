@@ -11,19 +11,19 @@
 
 - name: Create tmux config folder
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/tmux"
+    path: "{{ ansible_facts.env.HOME }}/.config/tmux"
     state: directory
     mode: "775"
 
 - name: Copy tmux config
   ansible.builtin.copy:
     src: tmux.conf
-    dest: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
+    dest: "{{ ansible_facts.env.HOME }}/.config/tmux/tmux.conf"
     mode: "644"
 
 - name: Attach every terminal to the default tmux session
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts.env.HOME }}/.bashrc"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: tmux -- attach every terminal to the default tmux session"
     block: |
       if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
