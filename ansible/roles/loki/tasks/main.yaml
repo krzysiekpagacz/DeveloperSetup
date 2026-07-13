@@ -1,0 +1,21 @@
+---
+- name: Install Loki
+  ansible.builtin.include_role:
+    name: install_helper
+  vars:
+    install_helper_download_url: "{{ loki__download_url }}"
+    install_helper_download_checksum: "sha256:{{ loki__checksum_url }}"
+    install_helper_install_folder: "/opt/loki/{{ loki__version }}/"
+    install_helper_register_commands:
+      loki:
+        target: loki-linux-amd64
+
+- name: Verify loki installation
+  ansible.builtin.command:
+    cmd: loki --version
+  register: loki_version_output
+  changed_when: false
+
+- name: Show loki version
+  ansible.builtin.debug:
+    msg: "{{ loki_version_output.stdout_lines }}"

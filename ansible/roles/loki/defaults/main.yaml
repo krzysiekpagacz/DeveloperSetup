@@ -1,0 +1,5 @@
+---
+loki__version: v3.7.3
+loki__base_url: "https://github.com/grafana/loki/releases/download/{{ loki__version }}"
+loki__download_url: "{{ loki__base_url }}/loki-linux-amd64.zip"
+loki__checksum_url: "{{ loki__base_url }}/SHA256SUMS"

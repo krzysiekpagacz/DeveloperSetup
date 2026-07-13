@@ -66,6 +66,7 @@ Roles are applied in this order by `profiles/profile_platform.yaml`:
 | `go`            | Installs `golang` from apt                                                                                                                                                                                                                                              |
 | `iac-tools`     | Installs `tgswitch`/`tfswitch` (Terraform & Terragrunt version managers), `tflint`, sets up a shared Terraform plugin cache                                                                                                                                             |
 | `k8s`           | Installs `kubectl` (+ bash completion), `k9s`, Helm (via snap) with `helm-git`/`helm-secrets` plugins, `kubectx`/`kubens`, and `krew` with plugins: ktop, stern, neat, tree, who-can, access-matrix, view-secret, outdated, resource-capacity, df-pv, node-shell, sniff |
+| `loki`          | Downloads and installs the Grafana Loki binary (v3.7.3) via `install_helper`, verified against the upstream `SHA256SUMS` checksum                                                                                                                                       |
 | `tmux`          | Installs tmux, drops in `ansible/roles/tmux/files/tmux.conf`, auto-attaches every new terminal to a `default` tmux session                                                                                                                                              |
 | `ubuntu_basics` | Passwordless `sudo`, a git-aware PS1 prompt (with exit-status indicator and, when enabled, kubectl context:namespace), and a set of shell aliases (git/docker/k8s/terraform/tmux shortcuts) in `.bash_aliases`                                                          |
 
@@ -133,6 +134,7 @@ Every individual tool installed by the roles above (each role's own `README.md` 
 | kubectl-df-pv                 | latest (krew)                                   | `ansible/roles/k8s`        | kubectl plugin (via krew) — shows disk usage of PersistentVolumes                                                                        |
 | kubectl-node-shell            | latest (krew)                                   | `ansible/roles/k8s`        | kubectl plugin (via krew) — drops into a root shell on a node via a temporary privileged pod                                             |
 | kubectl-sniff                 | latest (krew)                                   | `ansible/roles/k8s`        | kubectl plugin (via krew) — captures pod network traffic with tcpdump/Wireshark without needing tcpdump in the container                 |
+| loki                          | v3.7.3                                          | `ansible/roles/loki`       | Grafana Loki log aggregation system binary — receives, stores, and queries log streams (LogQL)                                           |
 | tmux                          | latest (apt)                                    | `ansible/roles/tmux`       | Terminal multiplexer                                                                                                                     |
 | Visual Studio Code            | latest (apt, via `gantsign.visual-studio-code`) | `ansible/roles/vscode`     | Source code editor (role not applied by the `platform` profile — see [VS Code](#vs-code-windows-side-for-remote-wsl-users))              |
 | HashiCorp Terraform           | latest (`hashicorp.terraform`)                  | `ansible/roles/vscode`     | VS Code extension — Terraform syntax highlighting/autocompletion, and the configured `[terraform]` formatter (not applied by `platform`) |
@@ -140,7 +142,7 @@ Every individual tool installed by the roles above (each role's own `README.md` 
 | GitLens                       | latest (`eamodio.gitlens`)                      | `ansible/roles/vscode`     | VS Code extension — git authorship/history visualization (not applied by `platform`)                                                     |
 | YAML                          | latest (`redhat.vscode-yaml`)                   | `ansible/roles/vscode`     | VS Code extension — YAML language support, and the configured `[yaml]` formatter (not applied by `platform`)                             |
 
-`ubuntu_basics` and `install_helper` install no tools of their own (`ubuntu_basics` only edits shell/sudo config; `install_helper` is a shared downloader used by `iac-tools` and `k8s` above) and so have no rows here.
+`ubuntu_basics` and `install_helper` install no tools of their own (`ubuntu_basics` only edits shell/sudo config; `install_helper` is a shared downloader used by `iac-tools`, `k8s`, and `loki` above) and so have no rows here.
 
 ## Repo layout
 

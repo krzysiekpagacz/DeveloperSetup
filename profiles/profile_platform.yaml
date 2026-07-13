@@ -22,6 +22,7 @@
     - go
     - iac-tools
     - k8s
+    - loki
     - tmux
     - ubuntu_basics
     # vscode is intentionally not applied here: on WSL with the standard
