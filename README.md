@@ -45,7 +45,7 @@ All user-specific settings live in `vars.yaml`:
 
 | Variable                          | Purpose                                                                                 |
 | --------------------------------- | --------------------------------------------------------------------------------------- |
-| `user_profile`                    | Selects which `ansible/profile_<name>.yaml` playbook to run (currently only `platform`) |
+| `user_profile`                    | Selects which `profiles/profile_<name>.yaml` playbook to run (currently only `platform`) |
 | `default_editor`                  | Default editor: git's `core.editor` and the shell's `$EDITOR`/`$VISUAL`                 |
 | `git_user_name`, `git_user_email` | Global git identity                                                                     |
 | `git_repositories`                | Repos to auto-clone into `~/projects` (or a custom `dest`)                              |
@@ -53,7 +53,7 @@ All user-specific settings live in `vars.yaml`:
 
 ## What gets installed
 
-Roles are applied in this order by `ansible/profile_platform.yaml`:
+Roles are applied in this order by `profiles/profile_platform.yaml`:
 
 | Role            | What it does                                                                                                                                                                                                                                                            |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -142,6 +142,23 @@ Every individual tool installed by the roles above (each role's own `README.md` 
 
 `ubuntu_basics` and `install_helper` install no tools of their own (`ubuntu_basics` only edits shell/sudo config; `install_helper` is a shared downloader used by `iac-tools` and `k8s` above) and so have no rows here.
 
+## Repo layout
+
+```
+provision_environment.sh          # entry point
+vars.yaml                         # user-specific variables
+ansible/
+  ansible.cfg                     # sets interpreter_python=auto_silent (silences interpreter-discovery warning)
+  ansible_requirements.yaml       # galaxy roles/collections
+  ansible_root_playbook.yaml      # imports the selected profile
+  roles/                          # one directory per role (see table above)
+                                   # each role has its own README.md — see docs/role-readme-guide.md
+profiles/
+  profile_platform.yaml           # role list for the "platform" profile
+docs/
+  role-readme-guide.md            # template/rules for writing a role's README.md
+```
+
 ### VS Code (Windows side, for Remote-WSL users)
 
 Install these extensions from the Extensions panel (VS Code will offer to install them "in WSL: \<distro\>" too when you're connected — decline that unless you actually need them server-side):
@@ -188,20 +205,4 @@ And add to your Windows-side user settings (`Ctrl+Shift+P` → "Preferences: Ope
   "security.allowedUNCHosts": ["wsl.localhost"],
   "remote.autoForwardPortsSource": "hybrid"
 }
-```
-
-## Repo layout
-
-```
-provision_environment.sh          # entry point
-vars.yaml                         # user-specific variables
-ansible/
-  ansible.cfg                     # sets interpreter_python=auto_silent (silences interpreter-discovery warning)
-  ansible_requirements.yaml       # galaxy roles/collections
-  ansible_root_playbook.yaml      # imports the selected profile
-  profile_platform.yaml           # role list for the "platform" profile
-  roles/                          # one directory per role (see table above)
-                                   # each role has its own README.md — see docs/role-readme-guide.md
-docs/
-  role-readme-guide.md            # template/rules for writing a role's README.md
 ```
