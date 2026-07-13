@@ -8,6 +8,15 @@
     - /etc/apt/sources.list.d/google-cloud-sdk.list
     - /usr/share/keyrings/cloud.google.gpg
 
+- name: Ensure python3-debian is installed (required by deb822_repository)
+  become: true
+  ansible.builtin.apt:
+    name: python3-debian
+    state: present
+    update_cache: true
+  retries: 6
+  delay: 10
+
 - name: Add Google Cloud SDK apt repository
   become: true
   ansible.builtin.deb822_repository:
@@ -18,7 +27,6 @@
     components: main
     signed_by: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
-    install_python_debian: true
 
 - name: Update apt cache
   become: true

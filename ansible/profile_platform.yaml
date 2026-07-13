@@ -1,6 +1,17 @@
 ---
 - name: Basic setup
   hosts: all
+  pre_tasks:
+    - name: Remove stale Docker apt source files before any apt operation
+      become: true
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apt/sources.list.d/download_docker_com_linux_ubuntu.list
+        - /etc/apt/sources.list.d/docker.list
+        - /etc/apt/sources.list.d/docker.sources
+        - "/etc/apt/sources.list.d/archive_uri-https_download_docker_com_linux_ubuntu-{{ ansible_facts.distribution_release }}.list"
   roles:
     - aws
     - cli_utils
